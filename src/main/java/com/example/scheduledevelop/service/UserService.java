@@ -37,8 +37,17 @@ public class UserService {
             throw new IllegalArgumentException("이메일은 무조건 입력해야 합니다.");
         }
 
+        if(requestDto.getPassword() == null || requestDto.getPassword().trim().isEmpty()) {
+            throw new IllegalArgumentException("비밀번호는 무조건 입력해야 합니다.");
+        }
+
+        if (requestDto.getPassword().length() < 8) {
+            throw  new IllegalArgumentException("비밀번호는 무조건 8글자 이상이어야 합니다.");
+        }
+
         User user = new User(requestDto.getUserName(),
-                requestDto.getEmail());
+                requestDto.getEmail(),
+                requestDto.getPassword());
         User saved = userReppository.save(user);
         return CreateUserResponseDto.from(saved);
     }
@@ -66,8 +75,6 @@ public class UserService {
     @Transactional
     public UpdateUserResponseDto update(Long id, UpdateUserRequestDto updateUserRequestDto) {
 
-        System.out.println("DEBUG: userName = [" + updateUserRequestDto.getUserName() + "]");
-
         if(updateUserRequestDto.getUserName() == null || updateUserRequestDto.getUserName().trim().isEmpty()) {
             throw new IllegalArgumentException("이름은 무조건 입력해야 합니다.");
         }
@@ -76,10 +83,21 @@ public class UserService {
             throw new IllegalArgumentException("이메일은 무조건 입력해야 합니다.");
         }
 
+        if(updateUserRequestDto.getPassword() == null || updateUserRequestDto.getPassword().trim().isEmpty()) {
+            throw new IllegalArgumentException("비밀번호는 무조건 입력해야 합니다.");
+        }
+
+        if (updateUserRequestDto.getPassword().length() < 8) {
+            throw  new IllegalArgumentException("비밀번호는 무조건 8글자 이상이어야 합니다.");
+        }
 
         User user = userReppository.findById(id).orElseThrow(
                 () -> new UserNotFoundException("없는 유저입니다.")
         );
+
+        if (!(updateUserRequestDto.getPassword().equals(user.getPassword()))) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
 
         user.update(
                 updateUserRequestDto.getUserName(),
@@ -91,10 +109,15 @@ public class UserService {
 
     //D
     @Transactional
-    public void delete(Long id) {
+    public void delete(Long id, DeleteUserRequestDto deleteUserRequestDto) {
         User user = userReppository.findById(id).orElseThrow(
                 () -> new UserNotFoundException("없는 유저입니다.")
         );
+
+        if (!(deleteUserRequestDto.getPassword().equals(user.getPassword()))) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
         userReppository.delete(user);
     }
 
