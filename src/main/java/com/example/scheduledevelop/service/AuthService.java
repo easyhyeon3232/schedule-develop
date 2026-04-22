@@ -1,5 +1,6 @@
 package com.example.scheduledevelop.service;
 
+import com.example.scheduledevelop.config.PasswordEncoder;
 import com.example.scheduledevelop.dto.LoginRequestDto;
 import com.example.scheduledevelop.dto.LoginResponseDto;
 import com.example.scheduledevelop.entity.User;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
     public LoginResponseDto login (LoginRequestDto loginRequestDto) {
@@ -27,7 +29,7 @@ public class AuthService {
                 () -> new IllegalArgumentException("이메일이 일치하지 않습니다.")
         );
 
-        if(!(loginRequestDto.getPassword().equals(user.getPassword()))) {
+        if(!passwordEncoder.matches(loginRequestDto.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 

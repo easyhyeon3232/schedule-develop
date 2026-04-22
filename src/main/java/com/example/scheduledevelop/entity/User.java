@@ -24,7 +24,7 @@ public class User extends BaseEntity{
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(length = 50, nullable = false)
+    @Column(length = 100, nullable = false)
     private String password;
 
     // 부모엔티티(유저)가 삭제 시 자식 엔티티(일정)도 삭제

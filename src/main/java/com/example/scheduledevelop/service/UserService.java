@@ -1,5 +1,6 @@
 package com.example.scheduledevelop.service;
 
+import com.example.scheduledevelop.config.PasswordEncoder;
 import com.example.scheduledevelop.dto.*;
 import com.example.scheduledevelop.entity.User;
 import com.example.scheduledevelop.exception.UserNotFoundException;
@@ -20,6 +21,7 @@ import java.util.List;
 public class UserService {
     // 속
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     // 생
 
@@ -32,9 +34,11 @@ public class UserService {
             throw new IllegalArgumentException("이미 있는 이메일입니다.");
         }
 
+        String encode = passwordEncoder.encode((requestDto.getPassword()));
         User user = new User(requestDto.getUserName(),
                 requestDto.getEmail(),
-                requestDto.getPassword());
+                encode);
+
         User saved = userRepository.save(user);
         return CreateUserResponseDto.from(saved);
     }
@@ -79,7 +83,7 @@ public class UserService {
             throw new IllegalArgumentException("이메일이 일치하지 않습니다.");
         }
 
-        if (!(updateUserRequestDto.getPassword().equals(user.getPassword()))) {
+        if(!passwordEncoder.matches(updateUserRequestDto.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
@@ -102,7 +106,7 @@ public class UserService {
                 () -> new UserNotFoundException("없는 유저입니다.")
         );
 
-        if (!(deleteUserRequestDto.getPassword().equals(user.getPassword()))) {
+        if(!passwordEncoder.matches(deleteUserRequestDto.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
