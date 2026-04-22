@@ -1,5 +1,6 @@
 package com.example.scheduledevelop.dto;
 
+import com.example.scheduledevelop.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +17,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class CreateScheduleRequestDto {
 
+    private final Long userId;
     private final String title;
     private final String content;
-    private final String name;
-
 }

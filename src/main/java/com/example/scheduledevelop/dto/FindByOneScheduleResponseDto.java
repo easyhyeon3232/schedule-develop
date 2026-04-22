@@ -1,10 +1,11 @@
 package com.example.scheduledevelop.dto;
 
 import com.example.scheduledevelop.entity.Schedule;
+import com.example.scheduledevelop.entity.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import org.hibernate.annotations.processing.Find;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -15,11 +16,11 @@ import java.time.LocalDateTime;
  * 통해 객체를 생성하도록 제한되어 있습니다.
  */
 @Getter
-public class FindByOneResponseDto {
+public class FindByOneScheduleResponseDto {
     private final Long id;
     private final String title;
     private final String content;
-    private final String name;
+    private final Long userId;
     private final LocalDateTime createAt;
     private final LocalDateTime updateAt;
 
@@ -30,16 +31,16 @@ public class FindByOneResponseDto {
      * @param id 일정 식별자
      * @param title 제목
      * @param content 내용
-     * @param name 작성자명
+     * @param userId 유저 식별자
      * @param createAt 등록 일시
      * @param updateAt 수정 일시
      */
     @Builder(access = AccessLevel.PRIVATE)
-    public FindByOneResponseDto(Long id, String title, String content, String name, LocalDateTime createAt, LocalDateTime updateAt) {
+    public FindByOneScheduleResponseDto(Long id, String title, String content, Long userId, LocalDateTime createAt, LocalDateTime updateAt) {
         this.id = id;
         this.title = title;
         this.content = content;
-        this.name = name;
+        this.userId = userId;
         this.createAt = createAt;
         this.updateAt = updateAt;
     }
@@ -49,12 +50,12 @@ public class FindByOneResponseDto {
      * @param schedule 변환할 일정 엔티티 객체
      * @return 변환된 응답 DTO 객체
      */
-    public static FindByOneResponseDto from(Schedule schedule) {
-        return FindByOneResponseDto.builder()
+    public static FindByOneScheduleResponseDto from(Schedule schedule) {
+        return FindByOneScheduleResponseDto.builder()
                 .id(schedule.getId())
                 .title(schedule.getTitle())
                 .content(schedule.getContent())
-                .name(schedule.getName())
+                .userId(schedule.getUser().getUserId())
                 .createAt(schedule.getCreateAt())
                 .updateAt(schedule.getUpdateAt())
                 .build();

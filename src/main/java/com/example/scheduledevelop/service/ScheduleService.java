@@ -2,8 +2,11 @@ package com.example.scheduledevelop.service;
 
 import com.example.scheduledevelop.dto.*;
 import com.example.scheduledevelop.entity.Schedule;
+import com.example.scheduledevelop.entity.User;
 import com.example.scheduledevelop.exception.ScheduleNotFoundException;
+import com.example.scheduledevelop.exception.UserNotFoundException;
 import com.example.scheduledevelop.repository.ScheduleRepository;
+import com.example.scheduledevelop.repository.UserReppository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +24,7 @@ public class ScheduleService {
 
     // 속
     private final ScheduleRepository scheduleRepository;
+    private final UserReppository userReppository;
 
     // 생
 
@@ -41,16 +45,14 @@ public class ScheduleService {
         if(requestDto.getContent() == null || requestDto.getContent().trim().isEmpty()) {
             throw new IllegalArgumentException("내용을 무조건 입력해야 합니다.");
         }
-
-        if(requestDto.getName() == null || requestDto.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("작성자명은 무조건 입력해야 합니다.");
-        }
-
+        User user = userReppository.findById(requestDto.getUserId()).orElseThrow(
+                () -> new UserNotFoundException("없는 유저입니다.")
+        );
         // 받은 데이터를 꺼내기
         Schedule schedule = new Schedule(
+                user,
                 requestDto.getTitle(),
-                requestDto.getContent(),
-                requestDto.getName()
+                requestDto.getContent()
         );
 
         // 꺼낸 데이터를 저장하기
@@ -61,7 +63,7 @@ public class ScheduleService {
                 saved.getId(),
                 saved.getTitle(),
                 saved.getContent(),
-                saved.getName(),
+                requestDto.getUserId(),
                 saved.getCreateAt(),
                 saved.getUpdateAt()
         );
@@ -77,11 +79,11 @@ public class ScheduleService {
     }
 
     @Transactional(readOnly = true)
-    public GetAllScheduleResponseDto findOne(Long id) {
+    public FindByOneScheduleResponseDto findOne(Long id) {
         Schedule schedule = scheduleRepository.findById(id).orElseThrow(
                 () -> new ScheduleNotFoundException("없는 일정입니다.")
         );
-        return GetAllScheduleResponseDto.from(schedule);
+        return FindByOneScheduleResponseDto.from(schedule);
     }
 
     // U

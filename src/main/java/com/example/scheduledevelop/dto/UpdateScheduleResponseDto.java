@@ -1,6 +1,7 @@
 package com.example.scheduledevelop.dto;
 
 import com.example.scheduledevelop.entity.Schedule;
+import com.example.scheduledevelop.entity.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,16 +13,16 @@ public class UpdateScheduleResponseDto {
     private final Long id;
     private final String title;
     private final String content;
-    private final String name;
+    private final Long userId;
     private final LocalDateTime createAt;
     private final LocalDateTime updateAt;
 
     @Builder(access = AccessLevel.PRIVATE)
-    public UpdateScheduleResponseDto(Long id, String title, String content, String name, LocalDateTime createAt, LocalDateTime updateAt) {
+    public UpdateScheduleResponseDto(Long id, String title, String content, Long userId, LocalDateTime createAt, LocalDateTime updateAt) {
         this.id = id;
         this.title = title;
         this.content = content;
-        this.name = name;
+        this.userId = userId;
         this.createAt = createAt;
         this.updateAt = updateAt;
     }
@@ -32,7 +33,7 @@ public class UpdateScheduleResponseDto {
                 .id(schedule.getId())
                 .title(schedule.getTitle())
                 .content(schedule.getContent())
-                .name(schedule.getName())
+                .userId(schedule.getUser().getUserId())
                 .createAt(schedule.getCreateAt())
                 .updateAt(schedule.getUpdateAt())
                 .build();

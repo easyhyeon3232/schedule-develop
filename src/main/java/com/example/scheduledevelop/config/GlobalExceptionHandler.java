@@ -25,17 +25,4 @@ public class GlobalExceptionHandler {
                 .status(e.getStatus())
                 .body(e.getMessage());
     }
-
-    /**
-     * 잘못된 인자가 전달되었을 때 발생하는 {@link IllegalArgumentException}를 처리합니다.
-     * @param e 잘못된 인자 전달로 인해 발생한 예외 객체
-     * @return HTTP 400 상태 코드와 예외 메시지를 포함한 {@link ResponseEntity}
-     */
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleException(IllegalArgumentException e) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(e.getMessage());
-    }
-
 }

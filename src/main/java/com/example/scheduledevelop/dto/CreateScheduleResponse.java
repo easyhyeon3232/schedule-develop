@@ -1,5 +1,6 @@
 package com.example.scheduledevelop.dto;
 
+import com.example.scheduledevelop.entity.User;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -16,7 +17,7 @@ public class CreateScheduleResponse {
     private final Long id;
     private final String title;
     private final String content;
-    private final String name;
+    private final Long userId;
     // DB생성 시 (datetime(6)으로 저장된다.)
     private final LocalDateTime createAt;
 
@@ -28,15 +29,15 @@ public class CreateScheduleResponse {
      * @param id 일정 식별자
      * @param title 제목
      * @param content 내용
-     * @param name 작성자명
+     * @param userId 유저 고유 식별자
      * @param createAt 등록 일시
      * @param updateAt 수정 일시
      */
-    public CreateScheduleResponse(Long id, String title, String content, String name, LocalDateTime createAt, LocalDateTime updateAt) {
+    public CreateScheduleResponse(Long id, String title, String content, Long userId, LocalDateTime createAt, LocalDateTime updateAt) {
         this.id = id;
         this.title = title;
         this.content = content;
-        this.name = name;
+        this.userId = userId;
         this.createAt = createAt;
         this.updateAt = updateAt;
     }

@@ -51,8 +51,8 @@ public class ScheduleController {
      * @return 조회된 일정 상세 정보와 함께 200 ok 상태 코드를 반환
      */
     @GetMapping("/{id}")
-    public ResponseEntity<GetAllScheduleResponseDto> findByOnd(@PathVariable Long id) {
-        GetAllScheduleResponseDto responseDto = scheduleService.findOne(id);
+    public ResponseEntity<FindByOneScheduleResponseDto> findByOnd(@PathVariable Long id) {
+        FindByOneScheduleResponseDto responseDto = scheduleService.findOne(id);
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
