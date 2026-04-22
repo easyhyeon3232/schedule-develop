@@ -6,7 +6,8 @@ import com.example.scheduledevelop.entity.User;
 import com.example.scheduledevelop.exception.ScheduleNotFoundException;
 import com.example.scheduledevelop.exception.UserNotFoundException;
 import com.example.scheduledevelop.repository.ScheduleRepository;
-import com.example.scheduledevelop.repository.UserReppository;
+import com.example.scheduledevelop.repository.UserRepository;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,15 +25,18 @@ public class ScheduleService {
 
     // 속
     private final ScheduleRepository scheduleRepository;
-    private final UserReppository userReppository;
+    private final UserRepository userRepository;
 
     // 생
 
     // 기
     // C
     @Transactional
-    public CreateScheduleResponse save(CreateScheduleRequestDto requestDto) {
+    public CreateScheduleResponse save(CreateScheduleRequestDto requestDto, Long sessionUserId) {
 
+        if(!requestDto.getUserId().equals(sessionUserId)) {
+            throw new IllegalArgumentException("본인의 계정으로만 일정을 생성할 수 있습니다.");
+        }
         // .trim() : 앞뒤에 붙어잇는 쓸덷없는 공백을 잘라주는 메서드
         // .isEmpty() : 문자열의 길이가 0인지 확인
         // .trim().isEmpty() : 스페이스만 잔뜩 입력해서 보낸 얌체 데이터도 아무것도 입력 안했다고 판정
@@ -45,7 +49,7 @@ public class ScheduleService {
         if(requestDto.getContent() == null || requestDto.getContent().trim().isEmpty()) {
             throw new IllegalArgumentException("내용을 무조건 입력해야 합니다.");
         }
-        User user = userReppository.findById(requestDto.getUserId()).orElseThrow(
+        User user = userRepository.findById(requestDto.getUserId()).orElseThrow(
                 () -> new UserNotFoundException("없는 유저입니다.")
         );
         // 받은 데이터를 꺼내기
@@ -71,25 +75,32 @@ public class ScheduleService {
 
     // R
     @Transactional(readOnly = true)
-    public List<GetAllScheduleResponseDto> findAll() {
-        List<Schedule> scheduleList = scheduleRepository.findAll();
+    public List<GetAllScheduleResponseDto> findAll(Long sessionUserId) {
+        List<Schedule> scheduleList = scheduleRepository.findAllByUser_userId(sessionUserId);
 
-        return scheduleList.stream().map(GetAllScheduleResponseDto::from)
+
+        return scheduleList.stream()
+                .map(GetAllScheduleResponseDto::from)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public FindByOneScheduleResponseDto findOne(Long id) {
+    public FindByOneScheduleResponseDto findOne(Long id, Long sessionUserId) {
         Schedule schedule = scheduleRepository.findById(id).orElseThrow(
                 () -> new ScheduleNotFoundException("없는 일정입니다.")
         );
+
+        if(!sessionUserId.equals(schedule.getUser().getUserId())) {
+            throw new IllegalArgumentException("작성자 본인이 아닙니다.");
+        }
+
         return FindByOneScheduleResponseDto.from(schedule);
     }
 
     // U
     // 업데이트 수정
     @Transactional
-    public UpdateScheduleResponseDto updateSchedule(Long id, UpdateScheduleRequestDto requestDto) {
+    public UpdateScheduleResponseDto updateSchedule(Long id, UpdateScheduleRequestDto requestDto, Long sessionUserId) {
 
         if(requestDto.getTitle() == null || requestDto.getTitle().trim().isEmpty()) {
             throw new IllegalArgumentException("제목은 무조건 입력해야 합니다.");
@@ -102,13 +113,17 @@ public class ScheduleService {
 
         }
 
-
         Schedule schedule = scheduleRepository.findById(id).orElseThrow(
                 () -> new ScheduleNotFoundException("없는 일정입니다.")
         );
 
 
-            schedule.update(
+        if(!sessionUserId.equals(schedule.getUser().getUserId())) {
+            throw new IllegalArgumentException("작성자 본인이 아닙니다.");
+        }
+
+
+        schedule.update(
                 requestDto.getTitle(),
                 requestDto.getContent()
         );
@@ -118,10 +133,15 @@ public class ScheduleService {
     }
 
     // D
-    public void delete(Long id) {
-        scheduleRepository.findById(id).orElseThrow(
+    public void delete(Long id, Long sessionUserId) {
+        Schedule schedule = scheduleRepository.findById(id).orElseThrow(
                 () -> new ScheduleNotFoundException("없는 일정입니다.")
         );
+
+        if(!sessionUserId.equals(schedule.getUser().getUserId())) {
+            throw new IllegalArgumentException("작성자 본인이 아닙니다.");
+        }
+
         scheduleRepository.deleteById(id);
     }
 }

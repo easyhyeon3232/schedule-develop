@@ -1,7 +1,9 @@
 package com.example.scheduledevelop.controller;
 
 import com.example.scheduledevelop.dto.*;
+import com.example.scheduledevelop.repository.UserRepository;
 import com.example.scheduledevelop.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import java.util.List;
 public class UserController {
     // 속
     private final UserService userService;
+    private final UserRepository userRepository;
     // 생
 
     // 기
@@ -29,26 +32,54 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<FindAllUserResponseDto>> findAll() {
-        List<FindAllUserResponseDto> all = userService.findAll();
+    public ResponseEntity<List<FindAllUserResponseDto>> findAll(HttpSession session) {
+        SessionUser sessionUser = (SessionUser) session.getAttribute("sessionUser");
+
+        if(sessionUser == null) {
+            throw new IllegalArgumentException("로그인이 필요합니다.");
+        }
+
+            List<FindAllUserResponseDto> all = userService.findAll();
         return ResponseEntity.status(HttpStatus.OK).body(all);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<FindOneUserResponseDto> findOne(@PathVariable Long id) {
-        FindOneUserResponseDto userResponseDto = userService.findOne(id);
+    public ResponseEntity<FindOneUserResponseDto> findOne(@PathVariable Long id, HttpSession session) {
+
+        SessionUser sessionUser = (SessionUser) session.getAttribute("sessionUser");
+
+        if(sessionUser == null) {
+            throw new IllegalArgumentException("로그인이 필요합니다.");
+        }
+
+        FindOneUserResponseDto userResponseDto = userService.findOne(id, sessionUser.getId());
         return ResponseEntity.status(HttpStatus.OK).body(userResponseDto);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<UpdateUserResponseDto> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequestDto updateUserRequestDto) {
-        UpdateUserResponseDto update = userService.update(id, updateUserRequestDto);
+    public ResponseEntity<UpdateUserResponseDto> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequestDto updateUserRequestDto, HttpSession session) {
+
+        SessionUser sessionUser = (SessionUser) session.getAttribute("sessionUser");
+
+        if(sessionUser == null) {
+            throw new IllegalArgumentException("로그인이 필요합니다.");
+        }
+
+        UpdateUserResponseDto update = userService.update(id, updateUserRequestDto, sessionUser.getId());
         return ResponseEntity.status(HttpStatus.OK).body(update);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id, @RequestBody DeleteUserRequestDto deleteUserRequestDto) {
-        userService.delete(id, deleteUserRequestDto);
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id, @RequestBody DeleteUserRequestDto deleteUserRequestDto, HttpSession session) {
+        SessionUser sessionUser = (SessionUser) session.getAttribute("sessionUser");
+
+        if(sessionUser == null) {
+            throw new IllegalArgumentException("로그인이 필요합니다.");
+        }
+
+        userService.delete(id, deleteUserRequestDto, sessionUser.getId());
+
+        session.invalidate();
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

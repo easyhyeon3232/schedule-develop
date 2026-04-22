@@ -3,8 +3,7 @@ package com.example.scheduledevelop.service;
 import com.example.scheduledevelop.dto.*;
 import com.example.scheduledevelop.entity.User;
 import com.example.scheduledevelop.exception.UserNotFoundException;
-import com.example.scheduledevelop.repository.ScheduleRepository;
-import com.example.scheduledevelop.repository.UserReppository;
+import com.example.scheduledevelop.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,14 +12,14 @@ import java.util.List;
 
 /**
  * 유저 관리 비즈니스 로직하는 서비스 클래스입니다.
- * 이 클래스는 {@link UserReppository}를 사용하여
+ * 이 클래스는 {@link UserRepository}를 사용하여
  * 유저 생성, 조회, 수정, 삭제 (CRUD) 기능을 제공합니다.
  */
 @RequiredArgsConstructor
 @Service
 public class UserService {
     // 속
-    private final UserReppository userReppository;
+    private final UserRepository userRepository;
 
     // 생
 
@@ -48,22 +47,26 @@ public class UserService {
         User user = new User(requestDto.getUserName(),
                 requestDto.getEmail(),
                 requestDto.getPassword());
-        User saved = userReppository.save(user);
+        User saved = userRepository.save(user);
         return CreateUserResponseDto.from(saved);
     }
 
     //R
     @Transactional(readOnly = true)
     public List<FindAllUserResponseDto> findAll() {
-        List<User> userList = userReppository.findAll();
+        List<User> userList = userRepository.findAll();
 
         return userList.stream()
                 .map(FindAllUserResponseDto::from).toList();
     }
 
     @Transactional(readOnly = true)
-    public FindOneUserResponseDto findOne(Long id) {
-        User user = userReppository.findById(id).orElseThrow(
+    public FindOneUserResponseDto findOne(Long id, Long sessionUserId) {
+
+        if(!id.equals(sessionUserId)) {
+            throw new IllegalArgumentException("본인의 정보만 확인할 수 있습니다.");
+        }
+        User user = userRepository.findById(id).orElseThrow(
                 () -> new UserNotFoundException("없는 유저입니다.")
         );
 
@@ -73,15 +76,16 @@ public class UserService {
 
     //U
     @Transactional
-    public UpdateUserResponseDto update(Long id, UpdateUserRequestDto updateUserRequestDto) {
+    public UpdateUserResponseDto update(Long id, UpdateUserRequestDto updateUserRequestDto, Long sessionUserId) {
+
+        if(!id.equals(sessionUserId)) {
+            throw new IllegalArgumentException("본인의 정보만 수정할 수 있습니다.");
+        }
 
         if(updateUserRequestDto.getUserName() == null || updateUserRequestDto.getUserName().trim().isEmpty()) {
             throw new IllegalArgumentException("이름은 무조건 입력해야 합니다.");
         }
 
-        if(updateUserRequestDto.getEmail() == null || updateUserRequestDto.getEmail().trim().isEmpty()) {
-            throw new IllegalArgumentException("이메일은 무조건 입력해야 합니다.");
-        }
 
         if(updateUserRequestDto.getPassword() == null || updateUserRequestDto.getPassword().trim().isEmpty()) {
             throw new IllegalArgumentException("비밀번호는 무조건 입력해야 합니다.");
@@ -91,17 +95,21 @@ public class UserService {
             throw  new IllegalArgumentException("비밀번호는 무조건 8글자 이상이어야 합니다.");
         }
 
-        User user = userReppository.findById(id).orElseThrow(
+        User user = userRepository.findById(id).orElseThrow(
                 () -> new UserNotFoundException("없는 유저입니다.")
         );
+
+        // 이메일은 아이디가 되어버려서 수정하면 안됨
+        if(!updateUserRequestDto.getEmail().equals(user.getEmail())) {
+            throw new IllegalArgumentException("이메일이 일치하지 않습니다.");
+        }
 
         if (!(updateUserRequestDto.getPassword().equals(user.getPassword()))) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
         user.update(
-                updateUserRequestDto.getUserName(),
-                updateUserRequestDto.getEmail()
+                updateUserRequestDto.getUserName()
         );
         return UpdateUserResponseDto.from(user);
 
@@ -109,8 +117,13 @@ public class UserService {
 
     //D
     @Transactional
-    public void delete(Long id, DeleteUserRequestDto deleteUserRequestDto) {
-        User user = userReppository.findById(id).orElseThrow(
+    public void delete(Long id, DeleteUserRequestDto deleteUserRequestDto, Long sessionUserId) {
+
+        if(!id.equals(sessionUserId)) {
+            throw new IllegalArgumentException("본인의 정보만 삭제할 수 있습니다.");
+        }
+
+        User user = userRepository.findById(id).orElseThrow(
                 () -> new UserNotFoundException("없는 유저입니다.")
         );
 
@@ -118,7 +131,7 @@ public class UserService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        userReppository.delete(user);
+        userRepository.delete(user);
     }
 
 }
