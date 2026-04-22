@@ -28,20 +28,8 @@ public class UserService {
     @Transactional
     public CreateUserResponseDto create(CreateUserRequestDto requestDto) {
 
-        if(requestDto.getUserName() == null || requestDto.getUserName().trim().isEmpty()) {
-            throw new IllegalArgumentException("이름은 무조건 입력해야 합니다.");
-        }
-
-        if(requestDto.getEmail() == null || requestDto.getEmail().trim().isEmpty()) {
-            throw new IllegalArgumentException("이메일은 무조건 입력해야 합니다.");
-        }
-
-        if(requestDto.getPassword() == null || requestDto.getPassword().trim().isEmpty()) {
-            throw new IllegalArgumentException("비밀번호는 무조건 입력해야 합니다.");
-        }
-
-        if (requestDto.getPassword().length() < 8) {
-            throw  new IllegalArgumentException("비밀번호는 무조건 8글자 이상이어야 합니다.");
+        if(userRepository.existsByEmail(requestDto.getEmail())) {
+            throw new IllegalArgumentException("이미 있는 이메일입니다.");
         }
 
         User user = new User(requestDto.getUserName(),
@@ -80,19 +68,6 @@ public class UserService {
 
         if(!id.equals(sessionUserId)) {
             throw new IllegalArgumentException("본인의 정보만 수정할 수 있습니다.");
-        }
-
-        if(updateUserRequestDto.getUserName() == null || updateUserRequestDto.getUserName().trim().isEmpty()) {
-            throw new IllegalArgumentException("이름은 무조건 입력해야 합니다.");
-        }
-
-
-        if(updateUserRequestDto.getPassword() == null || updateUserRequestDto.getPassword().trim().isEmpty()) {
-            throw new IllegalArgumentException("비밀번호는 무조건 입력해야 합니다.");
-        }
-
-        if (updateUserRequestDto.getPassword().length() < 8) {
-            throw  new IllegalArgumentException("비밀번호는 무조건 8글자 이상이어야 합니다.");
         }
 
         User user = userRepository.findById(id).orElseThrow(

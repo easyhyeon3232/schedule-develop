@@ -4,6 +4,7 @@ import com.example.scheduledevelop.dto.*;
 import com.example.scheduledevelop.repository.UserRepository;
 import com.example.scheduledevelop.service.UserService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ public class UserController {
 
     // 기
     @PostMapping
-    public ResponseEntity<CreateUserResponseDto> createUser(@RequestBody CreateUserRequestDto requestDto) {
+    public ResponseEntity<CreateUserResponseDto> createUser(@Valid @RequestBody CreateUserRequestDto requestDto) {
         CreateUserResponseDto userResponseDto = userService.create(requestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDto);
     }
@@ -57,7 +58,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<UpdateUserResponseDto> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequestDto updateUserRequestDto, HttpSession session) {
+    public ResponseEntity<UpdateUserResponseDto> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequestDto updateUserRequestDto, HttpSession session) {
 
         SessionUser sessionUser = (SessionUser) session.getAttribute("sessionUser");
 
@@ -70,7 +71,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id, @RequestBody DeleteUserRequestDto deleteUserRequestDto, HttpSession session) {
+    public ResponseEntity<Void> deleteUser(@Valid @PathVariable Long id, @RequestBody DeleteUserRequestDto deleteUserRequestDto, HttpSession session) {
         SessionUser sessionUser = (SessionUser) session.getAttribute("sessionUser");
 
         if(sessionUser == null) {

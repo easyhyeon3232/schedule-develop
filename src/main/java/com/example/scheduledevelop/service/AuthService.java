@@ -26,7 +26,6 @@ public class AuthService {
         User user = userRepository.findByEmail(loginRequestDto.getEmail()).orElseThrow(
                 () -> new IllegalArgumentException("이메일이 일치하지 않습니다.")
         );
-        System.out.println("user = " + user);
 
         if(!(loginRequestDto.getPassword().equals(user.getPassword()))) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");

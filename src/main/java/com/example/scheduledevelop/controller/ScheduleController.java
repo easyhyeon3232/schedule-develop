@@ -3,6 +3,7 @@ package com.example.scheduledevelop.controller;
 import com.example.scheduledevelop.dto.*;
 import com.example.scheduledevelop.service.ScheduleService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +33,7 @@ public class ScheduleController {
      * @return 생성된 일정 정보와 함께 201 Created 상태 코드를 반환
      */
     @PostMapping
-    public ResponseEntity<CreateScheduleResponse> createSchedule(@RequestBody CreateScheduleRequestDto createRequestDto, HttpSession session) {
+    public ResponseEntity<CreateScheduleResponse> createSchedule(@Valid @RequestBody CreateScheduleRequestDto createRequestDto, HttpSession session) {
         SessionUser sessionUser = (SessionUser) session.getAttribute("sessionUser");
 
         if(sessionUser == null) {
@@ -88,7 +89,7 @@ public class ScheduleController {
      * @return 수정 완료된 일정 정보와 함께 200 ok 상태 코드를 반환
      */
     @PatchMapping("/{id}")
-    public ResponseEntity<UpdateScheduleResponseDto> updateSchedule(@PathVariable Long id, @RequestBody UpdateScheduleRequestDto requestDto, HttpSession session) {
+    public ResponseEntity<UpdateScheduleResponseDto> updateSchedule(@PathVariable Long id, @Valid @RequestBody UpdateScheduleRequestDto requestDto, HttpSession session) {
 
         SessionUser sessionUser = (SessionUser) session.getAttribute("sessionUser");
 

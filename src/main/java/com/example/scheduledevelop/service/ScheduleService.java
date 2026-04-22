@@ -37,18 +37,7 @@ public class ScheduleService {
         if(!requestDto.getUserId().equals(sessionUserId)) {
             throw new IllegalArgumentException("본인의 계정으로만 일정을 생성할 수 있습니다.");
         }
-        // .trim() : 앞뒤에 붙어잇는 쓸덷없는 공백을 잘라주는 메서드
-        // .isEmpty() : 문자열의 길이가 0인지 확인
-        // .trim().isEmpty() : 스페이스만 잔뜩 입력해서 보낸 얌체 데이터도 아무것도 입력 안했다고 판정
-        if(requestDto.getTitle() == null || requestDto.getTitle().trim().isEmpty()) {
-            throw new IllegalArgumentException("제목은 무조건 입력해야 합니다.");
-        }else if(requestDto.getTitle().length() > 200) {
-            throw new IllegalArgumentException("제목이 너무 길어서 200자 이하여야 합니다.");
-        }
 
-        if(requestDto.getContent() == null || requestDto.getContent().trim().isEmpty()) {
-            throw new IllegalArgumentException("내용을 무조건 입력해야 합니다.");
-        }
         User user = userRepository.findById(requestDto.getUserId()).orElseThrow(
                 () -> new UserNotFoundException("없는 유저입니다.")
         );
@@ -102,26 +91,13 @@ public class ScheduleService {
     @Transactional
     public UpdateScheduleResponseDto updateSchedule(Long id, UpdateScheduleRequestDto requestDto, Long sessionUserId) {
 
-        if(requestDto.getTitle() == null || requestDto.getTitle().trim().isEmpty()) {
-            throw new IllegalArgumentException("제목은 무조건 입력해야 합니다.");
-        }else if(requestDto.getTitle().length() > 200) {
-            throw new IllegalArgumentException("제목이 너무 길어서 200자 이하여야 합니다.");
-        }
-
-        if(requestDto.getContent() == null || requestDto.getContent().trim().isEmpty()) {
-            throw new IllegalArgumentException("내용을 무조건 입력해야 합니다.");
-
-        }
-
         Schedule schedule = scheduleRepository.findById(id).orElseThrow(
                 () -> new ScheduleNotFoundException("없는 일정입니다.")
         );
 
-
         if(!sessionUserId.equals(schedule.getUser().getUserId())) {
             throw new IllegalArgumentException("작성자 본인이 아닙니다.");
         }
-
 
         schedule.update(
                 requestDto.getTitle(),
@@ -138,6 +114,7 @@ public class ScheduleService {
                 () -> new ScheduleNotFoundException("없는 일정입니다.")
         );
 
+        // 비번일치 검증
         if(!sessionUserId.equals(schedule.getUser().getUserId())) {
             throw new IllegalArgumentException("작성자 본인이 아닙니다.");
         }

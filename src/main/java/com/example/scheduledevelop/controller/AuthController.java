@@ -5,6 +5,7 @@ import com.example.scheduledevelop.dto.LoginResponseDto;
 import com.example.scheduledevelop.dto.SessionUser;
 import com.example.scheduledevelop.service.AuthService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto, HttpSession session) {  // 로그인이 성공하면 session에 담긴다.
+    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequestDto, HttpSession session) {  // 로그인이 성공하면 session에 담긴다.
         LoginResponseDto responseDto = authService.login(loginRequestDto);
 
         // 로그인한 사람의 정보 중 딱 필요한 것만 골라 sessionUser에 담겠다.
