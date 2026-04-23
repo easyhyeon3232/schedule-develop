@@ -30,4 +30,10 @@ public class AuthController {
         session.setAttribute("sessionUser", sessionUser);
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpSession session) {
+        session.invalidate();
+        return ResponseEntity.ok().build();
+    }
 }
